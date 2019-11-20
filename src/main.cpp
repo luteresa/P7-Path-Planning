@@ -13,10 +13,11 @@
 using nlohmann::json;
 using std::string;
 using std::vector;
+using namespace std;
 //Start in lane 1 
-  int lane = 1;
+int lane = 1;
 //Make a reference velocity to target 
-  double ref_vel = 0.0; // mph
+double ref_vel = 0.0; // mph
 
 int main() {
   uWS::Hub h;
@@ -116,7 +117,7 @@ int main() {
               car_s = end_path_s;
             }
 
-            // Prediction step. Analysing other cars positions and states.
+            // Prediction step. Analysing other cars positions and states. avoid collision
             bool car_ahead = false;
             bool car_left = false;
             bool car_righ = false;
@@ -149,8 +150,8 @@ int main() {
                 double near_car_speed = sqrt(vx*vx + vy*vy);//magnitude calculation
                 double near_car_s = sensor_fusion[i][5];
                 //ROI setting in frenet coodinate.
-                double s_roi = 28.0;
-                double roi_offset = 15.0;
+                double s_roi = 29.0;
+                double roi_offset = 16.0;
 
                 // Estimate car[i] future(after 0.02 seconds later) s position after executing previous trajectory.
                 near_car_s += ((double)prev_size*0.02*near_car_speed);
@@ -182,7 +183,7 @@ int main() {
             // Behavior planner.
             double vel_diff = 0.0;
             const double MAX_VEL = 49.5;
-            const double MAX_ACC = .224;
+            const double MAX_ACC = .224;//5m/s/s
 
             if ( car_ahead ) 
             { // Car ahead
@@ -285,6 +286,8 @@ int main() {
             ptsy.push_back(next_w0[1]);
             ptsy.push_back(next_w1[1]);
             ptsy.push_back(next_w2[1]);
+
+            cout<<"ptsx.size:"<<ptsx.size()<<endl;
 
             // Making coordinates to local car coordinates.
             for ( int i = 0; i < ptsx.size(); i++ ) 
