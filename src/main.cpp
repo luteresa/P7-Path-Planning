@@ -107,7 +107,6 @@ int main() {
            * TODO: define a path made up of (x,y) points that the car will visit
            *   sequentially every .02 seconds
            */
-//=================================================================================
 
           // Provided previous path point size.
             int prev_size = previous_path_x.size();
@@ -156,7 +155,7 @@ int main() {
                 // Estimate car[i] future(after 0.02 seconds later) s position after executing previous trajectory.
                 near_car_s += ((double)prev_size*0.02*near_car_speed);
               
-                std::cout<<lane<<std::endl;
+                std::cout<<"in lane "<<lane<<std::endl;
                 #if 1
                 //Set the ROI of the road.
                 //Check if car[i] lane is in ego car's lane.
@@ -378,7 +377,6 @@ int main() {
 
             
 #endif
-//==================================================================================
           //endl
           msgJson["next_x"] = next_x_vals;
           msgJson["next_y"] = next_y_vals;
