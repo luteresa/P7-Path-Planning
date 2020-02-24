@@ -111,12 +111,12 @@ int main() {
           // Provided previous path point size.
             int prev_size = previous_path_x.size();
 
-            // Preventing collitions.
+            // 计算车距，避免碰撞
             if (prev_size > 0) {
               car_s = end_path_s;
             }
 
-            // Prediction step. Analysing other cars positions and states. avoid collision
+            // Prediction:分析其他车辆位置状态，避免碰撞
             bool car_ahead = false;
             bool car_left = false;
             bool car_righ = false;
@@ -153,6 +153,7 @@ int main() {
                 double roi_offset = 16.0;
 
                 // Estimate car[i] future(after 0.02 seconds later) s position after executing previous trajectory.
+                //下一个周期执行时，车辆行驶的距离
                 near_car_s += ((double)prev_size*0.02*near_car_speed);
               
                 std::cout<<"in lane "<<lane<<std::endl;
@@ -162,7 +163,7 @@ int main() {
                 if ( car_lane == lane ) 
                 {
                   // check car[i] in ego vehicle's lane.
-
+                  // 距离太近，可能碰撞
                   car_ahead |= near_car_s > car_s && near_car_s - car_s <= s_roi;
                 } 
                 else if ( car_lane - lane == -1 ) 
@@ -197,8 +198,8 @@ int main() {
                 lane = lane + 1; // Change lane to right.
               } 
               else 
-              {
-                vel_diff = -MAX_ACC;
+              { 
+                vel_diff = -MAX_ACC; //没有可变车道，则逐渐减速
               }
             } 
             else 
@@ -213,7 +214,7 @@ int main() {
               }
               if ( ref_vel < MAX_VEL ) 
               {
-                vel_diff = MAX_ACC;
+                vel_diff = MAX_ACC; //逐渐加速，解决起步抖动问题
               }
             }
           #if 01
@@ -303,9 +304,9 @@ int main() {
             }
 
             // Create the spline.
-            tk::spline s;
+            tk::spline spline_func;
             // Set (x,y) points to the spline. ptsx and ptsy is a set of [x1,x2,x3...],[y1,y2,y3...]
-            s.set_points(ptsx, ptsy);// fitting the point into spline
+            spline_func.set_points(ptsx, ptsy);// fitting the point into spline
 
             /*Start with all of the previous path points from last time. This is for the continuous path.
             next_x_vals, next_y_vals now is only initialized, so these are empty vectors.
@@ -318,7 +319,7 @@ int main() {
             /*Calculate how to break up spline points so that we travel at our desired reference velocity.
             */
             double target_x = 30.0;
-            double target_y = s(target_x);
+            double target_y = spline_func(target_x);
             double target_dist = sqrt(target_x*target_x + target_y*target_y);
 
             double x_add_on = 0;
@@ -344,7 +345,7 @@ int main() {
               and generates 50 ponits per time. This for loop generates one way point a time.*/
               double N = target_dist/(0.02*ref_vel/2.24);//2.24 is distance between ref_point to target with the given velocity
               double x_point = x_add_on + target_x/N;
-              double y_point = s(x_point);
+              double y_point = spline_func(x_point);
 
               x_add_on = x_point;
 
